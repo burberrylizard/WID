@@ -1,0 +1,69 @@
+.ap-table-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.ap-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ap-table-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ap-table-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.sortable-header {
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--transition-fast);
+}
+
+.sortable-header:hover {
+  color: var(--text-primary);
+}
+
+.sort-icon {
+  margin-left: 4px;
+  font-size: 0.8rem;
+  display: inline-block;
+}
+
+.bssid-cell {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.ssid-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ssid-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.signal-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100px;
+}
+
+.signal-value {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  width: 48px;
+}

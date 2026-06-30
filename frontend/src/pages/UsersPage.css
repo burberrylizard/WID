@@ -1,0 +1,51 @@
+.users-card {
+  padding: 24px;
+}
+
+.users-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.users-title-desc {
+  display: flex;
+  flex-direction: column;
+}
+
+.users-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.users-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.role-admin {
+  background: var(--neon-cyan-dim);
+  color: var(--neon-cyan);
+  border: 1px solid rgba(0, 212, 255, 0.2);
+}
+
+.role-viewer {
+  background: var(--neon-green-dim);
+  color: var(--neon-green);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+}
