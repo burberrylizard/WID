@@ -12,6 +12,8 @@ import {
 } from 'react-icons/hi2';
 import './Sidebar.css';
 
+import logoImg from '../../assets/roguewatch.jpg';
+
 export default function Sidebar({ stats, isOpen, toggleSidebar }) {
   const { user, logout } = useAuth();
   const [timeAgo, setTimeAgo] = useState('Just now');
@@ -34,11 +36,7 @@ export default function Sidebar({ stats, isOpen, toggleSidebar }) {
     <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
       <div>
         <div className="sidebar-brand">
-          <HiOutlineShieldExclamation className="sidebar-logo" />
-          <div className="sidebar-title-container">
-            <span className="sidebar-title">WIDS</span>
-            <span className="sidebar-subtitle">WiFi Intrusion</span>
-          </div>
+          <img src={logoImg} alt="RogueWatch Logo" className="sidebar-logo-img" />
         </div>
 
         <nav className="sidebar-nav">

@@ -5,6 +5,8 @@ import { HiOutlineShieldExclamation } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 import './LoginPage.css';
 
+import logoImg from '../assets/roguewatch.jpg';
+
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -35,9 +37,7 @@ export default function LoginPage() {
     <div className="login-container">
       <div className="glass-card login-card animate-scale-in">
         <div className="login-header">
-          <HiOutlineShieldExclamation className="login-logo" />
-          <h2 className="login-title">WIDS</h2>
-          <span className="login-subtitle">WiFi Intrusion Detection</span>
+          <img src={logoImg} alt="RogueWatch Logo" className="login-logo-img" />
         </div>
 
         <form onSubmit={handleSubmit} className="login-form">
