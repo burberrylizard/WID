@@ -5,11 +5,17 @@
 
 import axios from 'axios';
 
-// Create Axios instance pointing to the proxy URL or dynamic env URL
+// Get base URL from environment or fallback
+let baseUrl = import.meta.env.VITE_API_URL || '/api';
+if (baseUrl.startsWith('http') && !baseUrl.includes('/api')) {
+  baseUrl = baseUrl.endsWith('/') ? `${baseUrl}api` : `${baseUrl}/api`;
+}
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || '/api',
+  baseURL: baseUrl,
   headers: {
     'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true', // Bypasses ngrok's intermediate warning page
   },
 });
 
