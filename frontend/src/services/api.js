@@ -5,9 +5,9 @@
 
 import axios from 'axios';
 
-// Create Axios instance pointing to the proxy URL
+// Create Axios instance pointing to the proxy URL or dynamic env URL
 const api = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
     'Content-Type': 'application/json',
   },
