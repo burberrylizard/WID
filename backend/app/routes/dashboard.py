@@ -1,7 +1,7 @@
 """Dashboard routes for the WIDS backend."""
 
 from datetime import datetime, timedelta, timezone
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, current_app
 from sqlalchemy import func
 from app import db
 from app.models import DetectedAP, Alert, ScanHistory
@@ -41,7 +41,7 @@ def get_stats():
             'critical_alerts': critical_alerts,
             'scanner_status': 'active',
             'last_scan': last_scan,
-            'scan_interval': 30
+            'scan_interval': current_app.config.get('SCAN_INTERVAL', 30)
         }), 200
 
     except Exception as e:
