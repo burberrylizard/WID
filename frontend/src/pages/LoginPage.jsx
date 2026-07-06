@@ -80,10 +80,6 @@ export default function LoginPage() {
             {loading ? 'Authenticating...' : 'Establish Secure Connection'}
           </button>
         </form>
-
-        <div className="login-hint">
-          Demo Access: <code>admin</code> / <code>admin</code>
-        </div>
       </div>
     </div>
   );
