@@ -83,22 +83,21 @@ class DetectionEngine:
             auth = ap_data.get("authentication", "Unknown")
             enc = ap_data.get("encryption", "Unknown")
 
-            # --- Classification logic -------------------------------- #
-            if bssid in authorized_bssids:
-                status = "trusted"
-            elif ssid in authorized_ssids and bssid not in authorized_bssids:
-                status = "evil_twin"
-            elif signal > -60 and auth == "Open":
-                status = "rogue"
-            elif signal > -70:
-                status = "rogue"
+            # --- Classification logic (Enterprise-focused) ----------- #
+            if ssid in authorized_ssids:
+                # SSID belongs to our organization
+                if bssid in authorized_bssids:
+                    status = "trusted"
+                    # Only check signal anomalies on our legitimate APs
+                    self.check_signal_anomaly(bssid, signal)
+                else:
+                    # SSID matches ours, but BSSID is unauthorized (impersonator!)
+                    status = "evil_twin"
             else:
+                # SSID does not belong to our organization (e.g. coffee shop, neighbor)
                 status = "unknown"
 
             counts[status] += 1
-
-            # --- Check for signal anomaly on known BSSIDs ------------- #
-            self.check_signal_anomaly(bssid, signal)
 
             # --- Upsert into DetectedAP ------------------------------ #
             try:
