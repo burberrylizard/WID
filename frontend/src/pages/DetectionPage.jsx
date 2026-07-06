@@ -1,14 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import { useAuth } from '../context/AuthContext';
-import { scannerAPI } from '../services/api';
+import { scannerAPI, alertsAPI } from '../services/api';
+import { generatePDFReport } from '../services/reportGenerator';
 import { 
   HiOutlineArrowPath, 
   HiOutlineCpuChip, 
   HiOutlineClock,
   HiOutlineSignal,
   HiOutlineChevronLeft,
-  HiOutlineChevronRight
+  HiOutlineChevronRight,
+  HiOutlineArrowDownTray
 } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 import './DetectionPage.css';
@@ -69,6 +71,37 @@ export default function DetectionPage() {
       toast.error('Sweep execution failed.', { id: scanToast });
     } finally {
       setScanning(false);
+    }
+  };
+
+  const handleExportReport = async () => {
+    const reportToast = toast.loading('Compiling airspace survey data...');
+    try {
+      const [apRes, alertRes, statsRes] = await Promise.all([
+        scannerAPI.getDetectedAPs(),
+        alertsAPI.getAll(),
+        scannerAPI.getStatus()
+      ]);
+      
+      const statsPayload = {
+        scanner_status: statsRes.status,
+        last_scan: statsRes.last_scan,
+        trusted_aps: apRes.filter(ap => ap.status === 'trusted').length,
+        rogue_aps: apRes.filter(ap => ap.status === 'rogue').length,
+        evil_twins: apRes.filter(ap => ap.status === 'evil_twin').length,
+        unread_alerts: alertRes.filter(a => !a.is_read).length
+      };
+
+      generatePDFReport({
+        stats: statsPayload,
+        detectedAPs: apRes,
+        alerts: alertRes,
+        user
+      });
+      toast.success('Security report downloaded successfully.', { id: reportToast });
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to export security report.', { id: reportToast });
     }
   };
 
@@ -150,6 +183,9 @@ export default function DetectionPage() {
               <h3 className="scanner-config-title">Sweep History Logs</h3>
               <p className="whitelist-subtitle">Chronological logs of historical radio sweeps and security checks</p>
             </div>
+            <button className="btn btn-ghost btn-sm" onClick={handleExportReport} disabled={loading}>
+              <HiOutlineArrowDownTray /> Export PDF Report
+            </button>
           </div>
 
           {loading ? (

@@ -6,7 +6,8 @@ import AlertFeed from '../components/Dashboard/AlertFeed';
 import Charts from '../components/Dashboard/Charts';
 import { useAuth } from '../context/AuthContext';
 import { dashboardAPI, scannerAPI, alertsAPI } from '../services/api';
-import { HiOutlineArrowPath } from 'react-icons/hi2';
+import { generatePDFReport } from '../services/reportGenerator';
+import { HiOutlineArrowPath, HiOutlineArrowDownTray } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 import './DashboardPage.css';
 
@@ -72,6 +73,22 @@ export default function DashboardPage() {
     }
   };
 
+  const handleExportReport = () => {
+    try {
+      toast.loading('Generating PDF report...', { id: 'report-toast' });
+      generatePDFReport({
+        stats,
+        detectedAPs,
+        alerts,
+        user
+      });
+      toast.success('Report downloaded successfully!', { id: 'report-toast' });
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to generate PDF report.', { id: 'report-toast' });
+    }
+  };
+
   return (
     <Layout title="Airspace Dashboard">
       <div 
@@ -86,6 +103,15 @@ export default function DashboardPage() {
         </div>
 
         <div className="dashboard-header-actions">
+          <button 
+            className="btn btn-ghost" 
+            onClick={handleExportReport} 
+            disabled={loading || scanning}
+            title="Export PDF security survey"
+          >
+            <HiOutlineArrowDownTray />
+            Export PDF
+          </button>
           <button 
             className="btn btn-ghost" 
             onClick={() => loadData(true)} 
