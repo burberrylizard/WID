@@ -1,5 +1,5 @@
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 /**
  * Generates a corporate-grade PDF security audit report client-side.
@@ -119,7 +119,7 @@ export const generatePDFReport = (data) => {
     new Date(a.created_at).toLocaleString()
   ]);
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: currentY + 4,
     head: [['Severity', 'Threat Type', 'Target SSID', 'BSSID (MAC)', 'Incident Description', 'Timestamp']],
     body: alertRows.length > 0 ? alertRows : [['CLEAN', 'N/A', 'N/A', 'N/A', 'No threat activities detected in the monitored airspace.', 'N/A']],
@@ -169,7 +169,7 @@ export const generatePDFReport = (data) => {
     new Date(ap.scanned_at).toLocaleString()
   ]);
 
-  doc.autoTable({
+  autoTable(doc, {
     startY: currentY + 4,
     head: [['Status', 'SSID Name', 'BSSID (MAC Address)', 'Signal', 'CH', 'Security Profile', 'Scanned Time']],
     body: apRows.length > 0 ? apRows : [['N/A', 'No scanned networks', 'N/A', 'N/A', 'N/A', 'N/A', 'N/A']],
