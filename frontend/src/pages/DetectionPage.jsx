@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
+import { useAuth } from '../context/AuthContext';
 import { scannerAPI } from '../services/api';
 import { 
   HiOutlineArrowPath, 
@@ -13,6 +14,7 @@ import toast from 'react-hot-toast';
 import './DetectionPage.css';
 
 export default function DetectionPage() {
+  const { user } = useAuth();
   const [scannerStatus, setScannerStatus] = useState(null);
   const [scanHistory, setScanHistory] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -48,6 +50,10 @@ export default function DetectionPage() {
   }, [scanHistory.length]);
 
   const handleRunManualScan = async () => {
+    if (user?.role !== 'admin') {
+      toast.error('Privilege escalation blocked: Sweep execution is administrative only.');
+      return;
+    }
     if (scanning) return;
     setScanning(true);
     const scanToast = toast.loading('Establishing channel sweep...');
@@ -124,15 +130,17 @@ export default function DetectionPage() {
             </div>
           </div>
 
-          <button 
-            className="btn btn-primary w-full" 
-            onClick={handleRunManualScan}
-            disabled={scanning}
-            style={{ marginTop: 'auto' }}
-          >
-            <HiOutlineArrowPath className={scanning ? 'animate-spin' : ''} />
-            {scanning ? 'Running Sweep...' : 'Trigger Manual Sweep'}
-          </button>
+          {user?.role === 'admin' && (
+            <button 
+              className="btn btn-primary w-full" 
+              onClick={handleRunManualScan}
+              disabled={scanning}
+              style={{ marginTop: 'auto' }}
+            >
+              <HiOutlineArrowPath className={scanning ? 'animate-spin' : ''} />
+              {scanning ? 'Running Sweep...' : 'Trigger Manual Sweep'}
+            </button>
+          )}
         </div>
 
         {/* Right Side: Scan Sweep History List */}

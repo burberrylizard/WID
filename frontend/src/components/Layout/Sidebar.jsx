@@ -47,12 +47,14 @@ export default function Sidebar({ stats, isOpen, toggleSidebar }) {
             </div>
           </NavLink>
 
-          <NavLink to="/whitelist" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={toggleSidebar}>
-            <div className="sidebar-link-content">
-              <HiOutlineShieldCheck className="sidebar-link-icon" />
-              <span>Whitelist</span>
-            </div>
-          </NavLink>
+          {user?.role === 'admin' && (
+            <NavLink to="/whitelist" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={toggleSidebar}>
+              <div className="sidebar-link-content">
+                <HiOutlineShieldCheck className="sidebar-link-icon" />
+                <span>Whitelist</span>
+              </div>
+            </NavLink>
+          )}
 
           <NavLink to="/alerts" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={toggleSidebar}>
             <div className="sidebar-link-content">
@@ -71,12 +73,14 @@ export default function Sidebar({ stats, isOpen, toggleSidebar }) {
             </div>
           </NavLink>
 
-          <NavLink to="/users" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={toggleSidebar}>
-            <div className="sidebar-link-content">
-              <HiOutlineUsers className="sidebar-link-icon" />
-              <span>User Management</span>
-            </div>
-          </NavLink>
+          {user?.role === 'admin' && (
+            <NavLink to="/users" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={toggleSidebar}>
+              <div className="sidebar-link-content">
+                <HiOutlineUsers className="sidebar-link-icon" />
+                <span>User Management</span>
+              </div>
+            </NavLink>
+          )}
         </nav>
       </div>
 

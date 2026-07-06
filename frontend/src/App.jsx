@@ -29,6 +29,29 @@ function ProtectedRoute({ children }) {
   return isAuthenticated ? children : <Navigate to="/login" replace />
 }
 
+function AdminRoute({ children }) {
+  const { isAuthenticated, user, loading } = useAuth()
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '100vh',
+          background: 'var(--bg-primary)',
+        }}
+      >
+        <div className="loading-spinner" />
+      </div>
+    )
+  }
+
+  if (!isAuthenticated) return <Navigate to="/login" replace />
+  return user?.role === 'admin' ? children : <Navigate to="/" replace />
+}
+
 export default function App() {
   return (
     <Routes>
@@ -44,9 +67,9 @@ export default function App() {
       <Route
         path="/whitelist"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <WhitelistPage />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
       <Route
@@ -68,9 +91,9 @@ export default function App() {
       <Route
         path="/users"
         element={
-          <ProtectedRoute>
+          <AdminRoute>
             <UsersPage />
-          </ProtectedRoute>
+          </AdminRoute>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />

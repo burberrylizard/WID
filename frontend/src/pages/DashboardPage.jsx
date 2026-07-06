@@ -4,12 +4,14 @@ import StatsCards from '../components/Dashboard/StatsCards';
 import APTable from '../components/Dashboard/APTable';
 import AlertFeed from '../components/Dashboard/AlertFeed';
 import Charts from '../components/Dashboard/Charts';
+import { useAuth } from '../context/AuthContext';
 import { dashboardAPI, scannerAPI, alertsAPI } from '../services/api';
 import { HiOutlineArrowPath } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
+  const { user } = useAuth();
   const [stats, setStats] = useState(null);
   const [detectedAPs, setDetectedAPs] = useState([]);
   const [alerts, setAlerts] = useState([]);
@@ -48,6 +50,10 @@ export default function DashboardPage() {
   }, []);
 
   const handleManualScan = async () => {
+    if (user?.role !== 'admin') {
+      toast.error('Privilege escalation blocked: Scan execution is administrative only.');
+      return;
+    }
     if (scanning) return;
     setScanning(true);
     const scanToast = toast.loading('Initiating RF scan on interface...');
@@ -89,14 +95,16 @@ export default function DashboardPage() {
             <HiOutlineArrowPath className={loading ? 'animate-spin' : ''} />
             Refresh
           </button>
-          <button 
-            className="btn btn-primary" 
-            onClick={handleManualScan} 
-            disabled={scanning}
-          >
-            <HiOutlineArrowPath className={scanning ? 'animate-spin' : ''} />
-            {scanning ? 'Scanning...' : 'Trigger Scan'}
-          </button>
+          {user?.role === 'admin' && (
+            <button 
+              className="btn btn-primary" 
+              onClick={handleManualScan} 
+              disabled={scanning}
+            >
+              <HiOutlineArrowPath className={scanning ? 'animate-spin' : ''} />
+              {scanning ? 'Scanning...' : 'Trigger Scan'}
+            </button>
+          )}
         </div>
       </div>
 

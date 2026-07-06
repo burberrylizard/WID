@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
+import { useAuth } from '../context/AuthContext';
 import { alertsAPI } from '../services/api';
 import { 
   HiOutlineShieldExclamation,
@@ -14,6 +15,7 @@ import toast from 'react-hot-toast';
 import './AlertsPage.css';
 
 export default function AlertsPage() {
+  const { user } = useAuth();
   const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
@@ -51,7 +53,7 @@ export default function AlertsPage() {
 
   const handleRowClick = async (id, isRead) => {
     setExpandedId(expandedId === id ? null : id);
-    if (!isRead) {
+    if (!isRead && user?.role === 'admin') {
       try {
         await alertsAPI.markAsRead(id);
         // Silently reload in-memory alerts state to mark as read without full loading spinner
@@ -63,6 +65,10 @@ export default function AlertsPage() {
   };
 
   const handleMarkAllRead = async () => {
+    if (user?.role !== 'admin') {
+      toast.error('Privilege escalation blocked: Admin role required.');
+      return;
+    }
     try {
       await alertsAPI.markAllAsRead();
       toast.success('All alerts marked as read');
@@ -116,11 +122,13 @@ export default function AlertsPage() {
             <p className="whitelist-subtitle">Historical list of detected anomalies and intrusive incidents</p>
           </div>
 
-          <div className="alerts-summary-actions">
-            <button className="btn btn-ghost btn-sm" onClick={handleMarkAllRead} disabled={alerts.every(a => a.is_read)}>
-              <HiOutlineCheckCircle /> Mark All Read
-            </button>
-          </div>
+          {user?.role === 'admin' && (
+            <div className="alerts-summary-actions">
+              <button className="btn btn-ghost btn-sm" onClick={handleMarkAllRead} disabled={alerts.every(a => a.is_read)}>
+                <HiOutlineCheckCircle /> Mark All Read
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Filter controls */}

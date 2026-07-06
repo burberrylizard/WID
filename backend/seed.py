@@ -44,6 +44,25 @@ def seed() -> None:
         db.session.commit()
         
         print('[seed] Users: 1 row inserted (username: admin / password: admin)')
+
+        print('[seed] Inserting default viewer account ...')
+        viewer_user = User(
+            id=2,
+            user_id='U-002',
+            full_name='Diagnostic Viewer',
+            username='viewer',
+            email='viewer@wids.local',
+            role='viewer',
+            is_active=False,
+            last_login=None,
+            created_at=datetime.now(timezone.utc)
+        )
+        viewer_user.set_password('viewer') # Default password is 'viewer'
+
+        db.session.add(viewer_user)
+        db.session.commit()
+
+        print('[seed] Users: 2 rows inserted total (admin / admin and viewer / viewer)')
         print('\n[seed] DB Seeding Completed successfully! (Database is clean)')
 
 if __name__ == '__main__':
