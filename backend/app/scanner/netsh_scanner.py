@@ -54,6 +54,19 @@ class NetshScanner:
         RuntimeError
             If netsh is unavailable or the subprocess fails.
         """
+        # Trigger a hardware scan using pywifi if available to refresh the Windows OS cache
+        try:
+            import pywifi
+            import time
+            wifi = pywifi.PyWiFi()
+            if len(wifi.interfaces()) > 0:
+                iface = wifi.interfaces()[0]
+                logger.info("NetshScanner: Triggering hardware scan via %s...", iface.name())
+                iface.scan()
+                time.sleep(2.5) # Give the hardware adapter time to populate the scan results
+        except Exception as e:
+            logger.warning("NetshScanner: Could not trigger hardware scan via pywifi: %s", e)
+
         raw_output = self._run_netsh()
         networks = self._parse_output(raw_output)
         logger.debug("NetshScanner found %d networks", len(networks))
