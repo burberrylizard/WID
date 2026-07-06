@@ -7,7 +7,9 @@ import {
   HiOutlinePencilSquare, 
   HiOutlineTrash, 
   HiOutlineUsers,
-  HiXMark 
+  HiXMark,
+  HiOutlineChevronLeft,
+  HiOutlineChevronRight
 } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 import './UsersPage.css';
@@ -24,6 +26,11 @@ export default function UsersPage() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('viewer');
+  const [password, setPassword] = useState('');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const loadUsers = async () => {
     setLoading(true);
@@ -41,6 +48,11 @@ export default function UsersPage() {
     loadUsers();
   }, []);
 
+  // Reset page when list size changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [users.length]);
+
   const openAddModal = () => {
     if (currentUser?.role !== 'admin') {
       toast.error('Privilege escalation blocked: Only administrators can create users.');
@@ -51,6 +63,7 @@ export default function UsersPage() {
     setFullName('');
     setEmail('');
     setRole('viewer');
+    setPassword('');
     setModalOpen(true);
   };
 
@@ -64,6 +77,7 @@ export default function UsersPage() {
     setFullName(userToEdit.fullName || '');
     setEmail(userToEdit.email);
     setRole(userToEdit.role);
+    setPassword('');
     setModalOpen(true);
   };
 
@@ -82,6 +96,11 @@ export default function UsersPage() {
       return;
     }
 
+    if (!editingUser && !password) {
+      toast.error('Password is required for registration');
+      return;
+    }
+
     try {
       if (editingUser) {
         // Edit mode
@@ -97,7 +116,8 @@ export default function UsersPage() {
           username,
           email,
           role,
-          fullName
+          fullName,
+          password
         });
         toast.success(`New user account "${username}" created`);
       }
@@ -142,6 +162,10 @@ export default function UsersPage() {
     return currentUser?.role === 'admin';
   };
 
+  const totalPages = Math.ceil(users.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedUsers = users.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <Layout title="User Management">
       <div className="glass-card users-card animate-fade-in-up">
@@ -167,109 +191,137 @@ export default function UsersPage() {
             <h4 className="empty-state-title">No Operators Configured</h4>
           </div>
         ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>UserID</th>
-                  <th>Full Name</th>
-                  <th>Username</th>
-                  <th>Status</th>
-                  <th>Email Address</th>
-                  <th>Access Role</th>
-                  <th>Last Login</th>
-                  <th>Created Date</th>
-                  {currentUser?.role === 'admin' && <th className="text-right">Actions</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((u) => (
-                  <tr key={u.id}>
-                    <td className="mono" style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--neon-cyan)' }}>
-                      {u.userId || `U-${String(u.id).padStart(3, '0')}`}
-                    </td>
-                    <td>
-                      <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>
-                        {u.fullName || 'N/A'}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="flex items-center gap-2">
-                        <span className={`status-dot ${currentUser?.id === u.id ? 'status-dot-active' : ''}`}></span>
-                        <span>
-                          {u.username} {currentUser?.id === u.id && <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>(You)</span>}
+          <>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>UserID</th>
+                    <th>Full Name</th>
+                    <th>Username</th>
+                    <th>Status</th>
+                    <th>Email Address</th>
+                    <th>Access Role</th>
+                    <th>Last Login</th>
+                    <th>Created Date</th>
+                    {currentUser?.role === 'admin' && <th className="text-right">Actions</th>}
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedUsers.map((u) => (
+                    <tr key={u.id}>
+                      <td className="mono" style={{ fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--neon-cyan)' }}>
+                        {u.userId || `U-${String(u.id).padStart(3, '0')}`}
+                      </td>
+                      <td>
+                        <span style={{ color: 'var(--text-primary)', fontWeight: '600' }}>
+                          {u.fullName || 'N/A'}
                         </span>
-                      </div>
-                    </td>
-                    <td>
-                      <span className="flex items-center gap-2">
-                        <span 
-                          className={`status-dot ${u.isActive ? 'status-dot-active' : ''}`} 
-                          style={{ 
-                            background: u.isActive ? 'var(--neon-green)' : '#475569',
-                            animation: u.isActive ? 'pulse-green 2s ease-in-out infinite' : 'none' 
-                          }}
-                        ></span>
-                        <span style={{ fontSize: '0.75rem', fontWeight: '600', color: u.isActive ? 'var(--neon-green)' : 'var(--text-muted)' }}>
-                          {u.isActive ? 'ACTIVE' : 'INACTIVE'}
+                      </td>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <span className={`status-dot ${currentUser?.id === u.id ? 'status-dot-active' : ''}`}></span>
+                          <span>
+                            {u.username} {currentUser?.id === u.id && <span style={{ color: 'var(--text-muted)', fontSize: '0.7rem' }}>(You)</span>}
+                          </span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="flex items-center gap-2">
+                          <span 
+                            className={`status-dot ${u.isActive ? 'status-dot-active' : ''}`} 
+                            style={{ 
+                              background: u.isActive ? 'var(--neon-green)' : '#475569',
+                              animation: u.isActive ? 'pulse-green 2s ease-in-out infinite' : 'none' 
+                            }}
+                          ></span>
+                          <span style={{ fontSize: '0.75rem', fontWeight: '600', color: u.isActive ? 'var(--neon-green)' : 'var(--text-muted)' }}>
+                            {u.isActive ? 'ACTIVE' : 'INACTIVE'}
+                          </span>
                         </span>
-                      </span>
-                    </td>
-                    <td className="mono" style={{ fontSize: '0.85rem' }}>{u.email}</td>
-                    <td>
-                      <span className={`role-badge ${u.role === 'admin' ? 'role-admin' : 'role-viewer'}`}>
-                        {u.role}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="mono" style={{ fontSize: '0.75rem' }}>
-                        {u.lastLogin === 'Never' ? (
-                          <span style={{ color: 'var(--text-muted)' }}>Never</span>
-                        ) : (
-                          new Date(u.lastLogin).toLocaleString('en-US', {
+                      </td>
+                      <td className="mono" style={{ fontSize: '0.85rem' }}>{u.email}</td>
+                      <td>
+                        <span className={`role-badge ${u.role === 'admin' ? 'role-admin' : 'role-viewer'}`}>
+                          {u.role}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="mono" style={{ fontSize: '0.75rem' }}>
+                          {u.lastLogin === 'Never' ? (
+                            <span style={{ color: 'var(--text-muted)' }}>Never</span>
+                          ) : (
+                            new Date(u.lastLogin).toLocaleString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })
+                          )}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="mono" style={{ fontSize: '0.75rem' }}>
+                          {new Date(u.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
                             month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })
-                        )}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="mono" style={{ fontSize: '0.75rem' }}>
-                        {new Date(u.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </span>
-                    </td>
-                    {currentUser?.role === 'admin' && (
-                      <td className="actions-cell">
-                        <button 
-                          className="btn-icon" 
-                          onClick={() => openEditModal(u)} 
-                          title="Edit operator settings"
-                        >
-                          <HiOutlinePencilSquare />
-                        </button>
-                        {u.id !== 1 && currentUser?.id !== u.id && (
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </td>
+                      {currentUser?.role === 'admin' && (
+                        <td className="actions-cell">
                           <button 
                             className="btn-icon" 
-                            style={{ borderColor: 'rgba(255,51,102,0.2)' }}
-                            onClick={() => handleDelete(u)} 
-                            title="Deauthorize operator"
+                            onClick={() => openEditModal(u)} 
+                            title="Edit operator settings"
                           >
-                            <HiOutlineTrash style={{ color: 'var(--neon-red)' }} />
+                            <HiOutlinePencilSquare />
                           </button>
-                        )}
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                          {u.id !== 1 && currentUser?.id !== u.id && (
+                            <button 
+                              className="btn-icon" 
+                              style={{ borderColor: 'rgba(255,51,102,0.2)' }}
+                              onClick={() => handleDelete(u)} 
+                              title="Deauthorize operator"
+                            >
+                              <HiOutlineTrash style={{ color: 'var(--neon-red)' }} />
+                            </button>
+                          )}
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="pagination">
+                <span className="pagination-info">
+                  Showing {startIndex + 1} - {Math.min(startIndex + itemsPerPage, users.length)} of {users.length} operators
+                </span>
+
+                <div className="pagination-controls">
+                  <button 
+                    className="btn btn-ghost btn-sm" 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <HiOutlineChevronLeft /> Prev
+                  </button>
+                  <button 
+                    className="btn btn-ghost btn-sm" 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next <HiOutlineChevronRight />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -312,6 +364,20 @@ export default function UsersPage() {
                     disabled={!!editingUser} // Cannot change username after creation
                   />
                 </div>
+
+                {!editingUser && (
+                  <div className="input-group">
+                    <label className="input-label" htmlFor="user-password">Password</label>
+                    <input
+                      id="user-password"
+                      type="password"
+                      className="input"
+                      placeholder="Enter password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                    />
+                  </div>
+                )}
 
                 <div className="input-group">
                   <label className="input-label" htmlFor="user-email">Email Address</label>

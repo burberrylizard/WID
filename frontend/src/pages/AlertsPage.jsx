@@ -25,7 +25,7 @@ export default function AlertsPage() {
 
   // Pagination
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const itemsPerPage = 10;
 
   const loadAlerts = async () => {
     setLoading(true);

@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout/Layout';
 import { whitelistAPI } from '../services/api';
 import { 
-  HiOutlinePlus, 
-  HiOutlinePencilSquare, 
-  HiOutlineTrash, 
-  HiOutlineShieldCheck,
-  HiXMark 
+   HiOutlinePlus, 
+   HiOutlinePencilSquare, 
+   HiOutlineTrash, 
+   HiOutlineShieldCheck,
+   HiXMark,
+   HiOutlineChevronLeft,
+   HiOutlineChevronRight
 } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 import './WhitelistPage.css';
@@ -21,6 +23,10 @@ export default function WhitelistPage() {
   const [ssid, setSsid] = useState('');
   const [bssid, setBssid] = useState('');
   const [channel, setChannel] = useState('');
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const loadWhitelist = async () => {
     setLoading(true);
@@ -37,6 +43,11 @@ export default function WhitelistPage() {
   useEffect(() => {
     loadWhitelist();
   }, []);
+
+  // Reset page on list changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [whitelist.length]);
 
   const openAddModal = () => {
     setEditingAP(null);
@@ -106,6 +117,10 @@ export default function WhitelistPage() {
     }
   };
 
+  const totalPages = Math.ceil(whitelist.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedWhitelist = whitelist.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <Layout title="Whitelist Manager">
       <div className="glass-card whitelist-card animate-fade-in-up">
@@ -135,65 +150,93 @@ export default function WhitelistPage() {
             </button>
           </div>
         ) : (
-          <div className="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>SSID</th>
-                  <th>BSSID</th>
-                  <th>Ideal Channel</th>
-                  <th>Authorized By</th>
-                  <th>Date Added</th>
-                  <th className="text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {whitelist.map((ap) => (
-                  <tr key={ap.id}>
-                    <td>
-                      <div className="flex items-center gap-2">
-                        <span className="status-dot status-dot-active"></span>
-                        <strong style={{ color: 'var(--text-primary)' }}>{ap.ssid}</strong>
-                      </div>
-                    </td>
-                    <td className="mono">{ap.bssid}</td>
-                    <td>
-                      <span className="badge badge-info">{ap.channel || 'Auto'}</span>
-                    </td>
-                    <td>
-                      <span style={{ fontSize: '0.85rem' }}>{ap.added_by}</span>
-                    </td>
-                    <td>
-                      <span className="mono" style={{ fontSize: '0.8rem' }}>
-                        {new Date(ap.created_at).toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric'
-                        })}
-                      </span>
-                    </td>
-                    <td className="actions-cell">
-                      <button 
-                        className="btn-icon" 
-                        onClick={() => openEditModal(ap)} 
-                        title="Edit AP details"
-                      >
-                        <HiOutlinePencilSquare />
-                      </button>
-                      <button 
-                        className="btn-icon" 
-                        style={{ borderColor: 'rgba(255,51,102,0.2)' }}
-                        onClick={() => handleDelete(ap.id, ap.ssid)} 
-                        title="Remove AP"
-                      >
-                        <HiOutlineTrash style={{ color: 'var(--neon-red)' }} />
-                      </button>
-                    </td>
+          <>
+            <div className="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>SSID</th>
+                    <th>BSSID</th>
+                    <th>Ideal Channel</th>
+                    <th>Authorized By</th>
+                    <th>Date Added</th>
+                    <th className="text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {paginatedWhitelist.map((ap) => (
+                    <tr key={ap.id}>
+                      <td>
+                        <div className="flex items-center gap-2">
+                          <span className="status-dot status-dot-active"></span>
+                          <strong style={{ color: 'var(--text-primary)' }}>{ap.ssid}</strong>
+                        </div>
+                      </td>
+                      <td className="mono">{ap.bssid}</td>
+                      <td>
+                        <span className="badge badge-info">{ap.channel || 'Auto'}</span>
+                      </td>
+                      <td>
+                        <span style={{ fontSize: '0.85rem' }}>{ap.added_by}</span>
+                      </td>
+                      <td>
+                        <span className="mono" style={{ fontSize: '0.8rem' }}>
+                          {new Date(ap.created_at).toLocaleDateString('en-US', {
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric'
+                          })}
+                        </span>
+                      </td>
+                      <td className="actions-cell">
+                        <button 
+                          className="btn-icon" 
+                          onClick={() => openEditModal(ap)} 
+                          title="Edit AP details"
+                        >
+                          <HiOutlinePencilSquare />
+                        </button>
+                        <button 
+                          className="btn-icon" 
+                          style={{ borderColor: 'rgba(255,51,102,0.2)' }}
+                          onClick={() => handleDelete(ap.id, ap.ssid)} 
+                          title="Remove AP"
+                        >
+                          <HiOutlineTrash style={{ color: 'var(--neon-red)' }} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="pagination">
+                <span className="pagination-info">
+                  Showing {startIndex + 1} - {Math.min(startIndex + itemsPerPage, whitelist.length)} of {whitelist.length} entries
+                </span>
+
+                <div className="pagination-controls">
+                  <button 
+                    className="btn btn-ghost btn-sm" 
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <HiOutlineChevronLeft /> Prev
+                  </button>
+                  <button 
+                    className="btn btn-ghost btn-sm" 
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                  >
+                    Next <HiOutlineChevronRight />
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
 

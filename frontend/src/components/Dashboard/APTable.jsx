@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { HiOutlineChevronLeft, HiOutlineChevronRight } from 'react-icons/hi2';
 import './APTable.css';
 
 export default function APTable({ detectedAPs }) {
   const [sortField, setSortField] = useState('signal');
   const [sortDirection, setSortDirection] = useState('desc'); // 'asc' or 'desc'
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  // Reset page when detectedAPs list changes or sorting changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [detectedAPs.length, sortField, sortDirection]);
 
   const handleSort = (field) => {
     if (sortField === field) {
@@ -65,6 +73,9 @@ export default function APTable({ detectedAPs }) {
   };
 
   const sortedAPs = getSortedAPs();
+  const totalPages = Math.ceil(sortedAPs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedAPs = sortedAPs.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <div className="glass-card ap-table-card animate-fade-in-up delay-2">
@@ -100,7 +111,7 @@ export default function APTable({ detectedAPs }) {
             </tr>
           </thead>
           <tbody>
-            {sortedAPs.map((ap) => (
+            {paginatedAPs.map((ap) => (
               <tr 
                 key={`${ap.bssid}-${ap.ssid}`} 
                 className={ap.status === 'evil_twin' || ap.status === 'rogue' ? 'row-danger' : ''}
@@ -150,6 +161,32 @@ export default function APTable({ detectedAPs }) {
           </tbody>
         </table>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="pagination" style={{ padding: '16px 20px', marginTop: '0' }}>
+          <span className="pagination-info">
+            Showing {startIndex + 1} - {Math.min(startIndex + itemsPerPage, sortedAPs.length)} of {sortedAPs.length} networks
+          </span>
+
+          <div className="pagination-controls">
+            <button 
+              className="btn btn-ghost btn-sm" 
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <HiOutlineChevronLeft /> Prev
+            </button>
+            <button 
+              className="btn btn-ghost btn-sm" 
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              disabled={currentPage === totalPages}
+            >
+              Next <HiOutlineChevronRight />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

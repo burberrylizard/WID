@@ -5,7 +5,9 @@ import {
   HiOutlineArrowPath, 
   HiOutlineCpuChip, 
   HiOutlineClock,
-  HiOutlineSignal 
+  HiOutlineSignal,
+  HiOutlineChevronLeft,
+  HiOutlineChevronRight
 } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 import './DetectionPage.css';
@@ -15,6 +17,10 @@ export default function DetectionPage() {
   const [scanHistory, setScanHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [scanning, setScanning] = useState(false);
+
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const loadScannerData = async (showLoading = true) => {
     if (showLoading) setLoading(true);
@@ -35,6 +41,11 @@ export default function DetectionPage() {
   useEffect(() => {
     loadScannerData();
   }, []);
+
+  // Reset page when list size changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [scanHistory.length]);
 
   const handleRunManualScan = async () => {
     if (scanning) return;
@@ -67,6 +78,10 @@ export default function DetectionPage() {
   const avgDuration = totalScans > 0 
     ? Math.round(scanHistory.reduce((acc, curr) => acc + curr.duration_ms, 0) / totalScans) 
     : 0;
+
+  const totalPages = Math.ceil(scanHistory.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedHistory = scanHistory.slice(startIndex, startIndex + itemsPerPage);
 
   return (
     <Layout title="Detection Logs">
@@ -140,69 +155,97 @@ export default function DetectionPage() {
               <p>Execute your first scan to generate sweep history.</p>
             </div>
           ) : (
-            <div className="table-container">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Sweep Time</th>
-                    <th>Driver</th>
-                    <th>Total APs</th>
-                    <th>Trusted</th>
-                    <th>Rogue</th>
-                    <th>Evil Twin</th>
-                    <th>Unknown</th>
-                    <th>Alerts</th>
-                    <th>Duration</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {scanHistory.map((log) => (
-                    <tr key={log.id}>
-                      <td>
-                        <div className="flex items-center gap-2">
-                          <HiOutlineClock style={{ color: 'var(--text-muted)' }} />
-                          <strong style={{ color: 'var(--text-primary)', fontSize: '0.85rem' }}>
-                            {new Date(log.scan_time).toLocaleString('en-US')}
-                          </strong>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`badge ${getMethodBadgeClass(log.scan_method)}`} style={{ fontSize: '0.7rem' }}>
-                          {log.scan_method}
-                        </span>
-                      </td>
-                      <td className="mono">{log.total_aps}</td>
-                      <td>
-                        <span className="mono" style={{ color: 'var(--neon-green)' }}>{log.trusted}</span>
-                      </td>
-                      <td>
-                        <span className="mono" style={{ color: 'var(--neon-red)' }}>{log.rogue}</span>
-                      </td>
-                      <td>
-                        <span className="mono" style={{ color: 'var(--neon-purple)' }}>{log.evil_twin}</span>
-                      </td>
-                      <td>
-                        <span className="mono" style={{ color: 'var(--neon-amber)' }}>{log.unknown}</span>
-                      </td>
-                      <td>
-                        {log.alerts_generated > 0 ? (
-                          <span className="badge badge-critical" style={{ fontSize: '0.7rem', padding: '1px 6px' }}>
-                            {log.alerts_generated} Alerts
-                          </span>
-                        ) : (
-                          <span className="badge badge-low" style={{ fontSize: '0.7rem', padding: '1px 6px' }}>Clean</span>
-                        )}
-                      </td>
-                      <td>
-                        <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                          {log.duration_ms} ms
-                        </span>
-                      </td>
+            <>
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Sweep Time</th>
+                      <th>Driver</th>
+                      <th>Total APs</th>
+                      <th>Trusted</th>
+                      <th>Rogue</th>
+                      <th>Evil Twin</th>
+                      <th>Unknown</th>
+                      <th>Alerts</th>
+                      <th>Duration</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {paginatedHistory.map((log) => (
+                      <tr key={log.id}>
+                        <td>
+                          <div className="flex items-center gap-2">
+                            <HiOutlineClock style={{ color: 'var(--text-muted)' }} />
+                            <strong style={{ color: 'var(--text-primary)', fontSize: '0.85rem' }}>
+                              {new Date(log.scan_time).toLocaleString('en-US')}
+                            </strong>
+                          </div>
+                        </td>
+                        <td>
+                          <span className={`badge ${getMethodBadgeClass(log.scan_method)}`} style={{ fontSize: '0.7rem' }}>
+                            {log.scan_method}
+                          </span>
+                        </td>
+                        <td className="mono">{log.total_aps}</td>
+                        <td>
+                          <span className="mono" style={{ color: 'var(--neon-green)' }}>{log.trusted}</span>
+                        </td>
+                        <td>
+                          <span className="mono" style={{ color: 'var(--neon-red)' }}>{log.rogue}</span>
+                        </td>
+                        <td>
+                          <span className="mono" style={{ color: 'var(--neon-purple)' }}>{log.evil_twin}</span>
+                        </td>
+                        <td>
+                          <span className="mono" style={{ color: 'var(--neon-amber)' }}>{log.unknown}</span>
+                        </td>
+                        <td>
+                          {log.alerts_generated > 0 ? (
+                            <span className="badge badge-critical" style={{ fontSize: '0.7rem', padding: '1px 6px' }}>
+                              {log.alerts_generated} Alerts
+                            </span>
+                          ) : (
+                            <span className="badge badge-low" style={{ fontSize: '0.7rem', padding: '1px 6px' }}>Clean</span>
+                          )}
+                        </td>
+                        <td>
+                          <span className="mono" style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                            {log.duration_ms} ms
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination Controls */}
+              {totalPages > 1 && (
+                <div className="pagination">
+                  <span className="pagination-info">
+                    Showing {startIndex + 1} - {Math.min(startIndex + itemsPerPage, scanHistory.length)} of {scanHistory.length} sweeps
+                  </span>
+
+                  <div className="pagination-controls">
+                    <button 
+                      className="btn btn-ghost btn-sm" 
+                      onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <HiOutlineChevronLeft /> Prev
+                    </button>
+                    <button 
+                      className="btn btn-ghost btn-sm" 
+                      onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next <HiOutlineChevronRight />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
