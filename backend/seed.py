@@ -10,7 +10,7 @@ Usage:
 
 from datetime import datetime, timezone
 from app import create_app, db
-from app.models import User
+from app.models import User, AuditLog
 
 def seed() -> None:
     """Drop, recreate, and populate only the default administrator account."""
@@ -63,6 +63,38 @@ def seed() -> None:
         db.session.commit()
 
         print('[seed] Users: 2 rows inserted total (admin / admin and viewer / viewer)')
+
+        # ────────────────────────────────────────────────────────────────
+        # INITIAL SYSTEM AUDIT LOGS
+        # ────────────────────────────────────────────────────────────────
+        print('[seed] Inserting initial system audit logs ...')
+        log1 = AuditLog(
+            username='SYSTEM',
+            action='SYSTEM_INIT',
+            target='DATABASE',
+            details='Database schema initialized and tables created.',
+            ip_address='127.0.0.1',
+            created_at=datetime.now(timezone.utc)
+        )
+        log2 = AuditLog(
+            username='SYSTEM',
+            action='USER_CREATE',
+            target='U-001',
+            details="Registered new operator: 'admin' (admin)",
+            ip_address='127.0.0.1',
+            created_at=datetime.now(timezone.utc)
+        )
+        log3 = AuditLog(
+            username='SYSTEM',
+            action='USER_CREATE',
+            target='U-002',
+            details="Registered new operator: 'viewer' (viewer)",
+            ip_address='127.0.0.1',
+            created_at=datetime.now(timezone.utc)
+        )
+        db.session.add_all([log1, log2, log3])
+        db.session.commit()
+        print('[seed] Audit logs: 3 rows inserted.')
         print('\n[seed] DB Seeding Completed successfully! (Database is clean)')
 
 if __name__ == '__main__':

@@ -29,12 +29,17 @@ def login():
         user = User.query.filter_by(username=username).first()
 
         if not user or not user.check_password(password):
+            from app.services.audit_logger import log_activity
+            log_activity('USER_LOGIN_FAIL', target=username, details=f"Failed login attempt for username: {username}")
             return jsonify({'error': 'Invalid username or password'}), 401
 
         # Update user status
         user.is_active = True
         user.last_login = datetime.now(timezone.utc)
         db.session.commit()
+
+        from app.services.audit_logger import log_activity
+        log_activity('USER_LOGIN', target=user.user_id, details=f"User {user.username} logged in successfully", username=user.username)
 
         timestamp = int(datetime.now(timezone.utc).timestamp())
 
@@ -64,6 +69,8 @@ def logout():
             if user:
                 user.is_active = False
                 db.session.commit()
+                from app.services.audit_logger import log_activity
+                log_activity('USER_LOGOUT', target=user.user_id, details=f"User {user.username} logged out", username=user.username)
 
         return jsonify({'success': True}), 200
 

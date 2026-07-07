@@ -26,6 +26,15 @@ api.interceptors.request.use(
     if (token) {
       config.headers['Authorization'] = `Bearer ${token}`;
     }
+    const userStr = localStorage.getItem('wids-user');
+    if (userStr) {
+      try {
+        const userObj = JSON.parse(userStr);
+        if (userObj && userObj.username) {
+          config.headers['X-User-Username'] = userObj.username;
+        }
+      } catch (err) {}
+    }
     return config;
   },
   (error) => {
@@ -122,4 +131,18 @@ export const usersAPI = {
     role: data.role,
   }),
   remove: (id) => api.delete(`/users/${id}`),
+};
+
+// ══════════════════════════════════════════════════════════
+// Audit API
+// ══════════════════════════════════════════════════════════
+export const auditAPI = {
+  getLogs: (page = 1, limit = 10, filters = {}) => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    if (filters.username) params.append('username', filters.username);
+    if (filters.action) params.append('action', filters.action);
+    return api.get(`/audit/?${params.toString()}`);
+  },
 };

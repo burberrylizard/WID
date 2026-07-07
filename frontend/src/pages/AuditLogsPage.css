@@ -1,0 +1,28 @@
+.audit-filter-card {
+  padding: 24px;
+}
+
+.audit-filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.audit-logs-card {
+  padding: 24px;
+}
+
+.badge-purple {
+  background: rgba(168, 85, 247, 0.1);
+  border: 1px solid var(--neon-purple, #a855f7);
+  color: var(--neon-purple, #a855f7);
+  box-shadow: 0 0 6px rgba(168, 85, 247, 0.15);
+}
+
+@media (max-width: 768px) {
+  .audit-filter-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

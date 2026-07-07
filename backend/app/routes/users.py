@@ -61,6 +61,9 @@ def create_user():
         db.session.add(new_user)
         db.session.commit()
 
+        from app.services.audit_logger import log_activity
+        log_activity('USER_CREATE', target=user_id, details=f"Registered new operator: '{username}' ({role})")
+
         return jsonify({
             'success': True,
             'user': new_user.to_dict()
@@ -95,6 +98,9 @@ def update_user(id):
 
         db.session.commit()
 
+        from app.services.audit_logger import log_activity
+        log_activity('USER_UPDATE', target=user.user_id, details=f"Updated profile for user '{user.username}': role='{user.role}'")
+
         return jsonify({
             'success': True,
             'user': user.to_dict()
@@ -116,8 +122,15 @@ def delete_user(id):
         if not user:
             return jsonify({'error': 'User not found'}), 404
 
+        user_deleted_id = user.user_id
+        user_deleted_name = user.username
+        user_deleted_role = user.role
+
         db.session.delete(user)
         db.session.commit()
+
+        from app.services.audit_logger import log_activity
+        log_activity('USER_DELETE', target=user_deleted_id, details=f"Deleted user '{user_deleted_name}' ({user_deleted_role})")
 
         return jsonify({'success': True}), 200
 

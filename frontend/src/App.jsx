@@ -6,6 +6,7 @@ import AlertsPage from './pages/AlertsPage'
 import DetectionPage from './pages/DetectionPage'
 import UsersPage from './pages/UsersPage'
 import LoginPage from './pages/LoginPage'
+import AuditLogsPage from './pages/AuditLogsPage'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, loading } = useAuth()
@@ -93,6 +94,14 @@ export default function App() {
         element={
           <AdminRoute>
             <UsersPage />
+          </AdminRoute>
+        }
+      />
+      <Route
+        path="/audit"
+        element={
+          <AdminRoute>
+            <AuditLogsPage />
           </AdminRoute>
         }
       />

@@ -69,6 +69,9 @@ def mark_alert_read(id):
         alert.is_read = True
         db.session.commit()
 
+        from app.services.audit_logger import log_activity
+        log_activity('ALERT_ACK', target=str(id), details=f"Acknowledged security alert ID {id} ({alert.alert_type})")
+
         return jsonify({'success': True}), 200
 
     except Exception as e:
@@ -82,6 +85,9 @@ def mark_all_alerts_read():
     try:
         Alert.query.filter_by(is_read=False).update({'is_read': True})
         db.session.commit()
+
+        from app.services.audit_logger import log_activity
+        log_activity('ALERT_ACK_ALL', details="Acknowledged all active security alerts")
 
         return jsonify({'success': True}), 200
 

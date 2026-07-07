@@ -35,6 +35,9 @@ def trigger_scan():
         engine = DetectionEngine(db)
         summary = engine.process_scan(scan_results, scan_method)
 
+        from app.services.audit_logger import log_activity
+        log_activity('MANUAL_SCAN_TRIGGER', details=f"Initiated manual RF channel sweep. Found {summary['total_aps']} active APs using {summary['scan_method']} scan method.")
+
         return jsonify({
             'success': True,
             'aps_found': summary['total_aps'],

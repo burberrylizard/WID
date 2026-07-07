@@ -52,6 +52,9 @@ def add_to_whitelist():
 
         db.session.commit()
 
+        from app.services.audit_logger import log_activity
+        log_activity('WHITELIST_ADD', target=bssid, details=f"Added SSID '{ssid}' with BSSID '{bssid}' to authorized whitelist")
+
         return jsonify({
             'success': True,
             'ap': new_ap.to_dict()
@@ -85,6 +88,9 @@ def update_whitelist(id):
             ap.channel = data['channel']
 
         db.session.commit()
+
+        from app.services.audit_logger import log_activity
+        log_activity('WHITELIST_UPDATE', target=ap.bssid, details=f"Updated whitelist entry ID {id} to SSID '{ap.ssid}', BSSID '{ap.bssid}', channel {ap.channel}")
 
         return jsonify({
             'success': True,
@@ -133,6 +139,9 @@ def delete_from_whitelist(id):
                     detected.status = 'rogue'
 
         db.session.commit()
+
+        from app.services.audit_logger import log_activity
+        log_activity('WHITELIST_DELETE', target=removed_bssid, details=f"Removed SSID '{ap.ssid}' with BSSID '{removed_bssid}' from whitelist")
 
         return jsonify({'success': True}), 200
 

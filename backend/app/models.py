@@ -215,3 +215,33 @@ class ScanHistory(db.Model):
 
     def __repr__(self) -> str:
         return f'<ScanHistory {self.scan_time} total={self.total_aps}>'
+
+
+# ── AuditLog ──────────────────────────────────────────────────────────────────
+
+class AuditLog(db.Model):
+    """Audit log tracking system operations and security-related events."""
+
+    __tablename__ = 'audit_logs'
+
+    id: int = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username: str = db.Column(db.String(50), nullable=True)  # Username of the operator
+    action: str = db.Column(db.String(50), nullable=False)   # Action type (e.g. 'USER_LOGIN', 'WHITELIST_ADD')
+    target: str = db.Column(db.String(100), nullable=True)   # Target entity (e.g. BSSID, userId)
+    details: str = db.Column(db.Text, nullable=True)        # Human-readable details
+    ip_address: str = db.Column(db.String(45), nullable=True)  # Client IP address
+    created_at: datetime = db.Column(db.DateTime, default=datetime.utcnow)
+
+    def to_dict(self) -> dict:
+        return {
+            'id': self.id,
+            'username': self.username or 'SYSTEM',
+            'action': self.action,
+            'target': self.target or 'N/A',
+            'details': self.details or '',
+            'ipAddress': self.ip_address or 'Local',
+            'created_at': self.created_at.isoformat() if self.created_at else None,
+        }
+
+    def __repr__(self) -> str:
+        return f'<AuditLog {self.action} by {self.username}>'

@@ -8,7 +8,8 @@ import {
   HiOutlineDocumentText,
   HiOutlineArrowRightOnRectangle,
   HiOutlineShieldExclamation,
-  HiOutlineUsers
+  HiOutlineUsers,
+  HiOutlineClipboardDocumentList
 } from 'react-icons/hi2';
 import './Sidebar.css';
 
@@ -78,6 +79,15 @@ export default function Sidebar({ stats, isOpen, toggleSidebar }) {
               <div className="sidebar-link-content">
                 <HiOutlineUsers className="sidebar-link-icon" />
                 <span>User Management</span>
+              </div>
+            </NavLink>
+          )}
+
+          {user?.role === 'admin' && (
+            <NavLink to="/audit" className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`} onClick={toggleSidebar}>
+              <div className="sidebar-link-content">
+                <HiOutlineClipboardDocumentList className="sidebar-link-icon" />
+                <span>Audit Logs</span>
               </div>
             </NavLink>
           )}

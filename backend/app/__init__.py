@@ -45,6 +45,7 @@ def create_app() -> Flask:
         ('app.routes.scanner',    'scanner_bp'),
         ('app.routes.users',      'users_bp'),
         ('app.routes.dashboard',  'dashboard_bp'),
+        ('app.routes.audit',      'audit_bp'),
     ]
 
     for module_path, bp_name in _blueprint_imports:
