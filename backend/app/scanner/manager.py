@@ -16,6 +16,10 @@ from app.scanner.simulator import SimulatorScanner
 logger = logging.getLogger(__name__)
 
 
+# ==============================================================================
+# **Wireless Scanner Manager**
+# ==============================================================================
+
 class ScannerManager:
     """
     High-level scanner facade.

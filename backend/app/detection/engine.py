@@ -11,6 +11,10 @@ from datetime import datetime, timezone
 logger = logging.getLogger(__name__)
 
 
+# ==============================================================================
+# **Intrusion Detection**
+# ==============================================================================
+
 class DetectionEngine:
     """
     Core detection logic.
