@@ -78,21 +78,19 @@ class ScannerManager:
     def get_status(self) -> dict:
         """
         Return a status snapshot of the scanner subsystem.
-
-        Example::
-
-            {
-                "status": "active",
-                "method": "netsh",
-                "last_scan": "2026-06-30T12:34:56+00:00",
-                "interval": 30
-            }
         """
+        from flask import current_app
+        interval = 30
+        try:
+            interval = current_app.config.get("SCAN_INTERVAL", 30)
+        except Exception:
+            pass
+
         return {
             "status": "active",
             "method": self._primary_method,
             "last_scan": self._last_scan.isoformat() if self._last_scan else None,
-            "interval": 30,
+            "interval": interval,
         }
 
     # ------------------------------------------------------------------ #

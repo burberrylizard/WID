@@ -80,11 +80,12 @@ def get_scanner_status():
         return jsonify(status), 200
 
     except ImportError:
+        from flask import current_app
         return jsonify({
             'status': 'active',
             'method': 'simulation',
             'last_scan': None,
-            'interval': 30
+            'interval': current_app.config.get('SCAN_INTERVAL', 30)
         }), 200
 
     except Exception as e:
