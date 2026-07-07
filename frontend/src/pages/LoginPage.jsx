@@ -7,6 +7,10 @@ import './LoginPage.css';
 
 import logoImg from '../assets/roguewatch.jpg';
 
+// ==============================================================================
+// **USER AUTHENTICATION ACCESS**
+// ==============================================================================
+
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');

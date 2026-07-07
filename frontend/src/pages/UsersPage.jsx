@@ -14,6 +14,10 @@ import {
 import toast from 'react-hot-toast';
 import './UsersPage.css';
 
+// ==============================================================================
+// **USER ACCOUNT CONTROLS**
+// ==============================================================================
+
 export default function UsersPage() {
   const { user: currentUser } = useAuth();
   const [users, setUsers] = useState([]);

@@ -15,6 +15,10 @@ import {
 import toast from 'react-hot-toast';
 import './DetectionPage.css';
 
+// ==============================================================================
+// **DETECTION HISTORY LOGS**
+// ==============================================================================
+
 export default function DetectionPage() {
   const { user } = useAuth();
   const [scannerStatus, setScannerStatus] = useState(null);

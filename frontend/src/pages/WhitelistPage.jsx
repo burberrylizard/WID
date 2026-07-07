@@ -13,6 +13,10 @@ import {
 import toast from 'react-hot-toast';
 import './WhitelistPage.css';
 
+// ==============================================================================
+// **WHITELIST CONFIGURATION**
+// ==============================================================================
+
 export default function WhitelistPage() {
   const [whitelist, setWhitelist] = useState([]);
   const [loading, setLoading] = useState(true);

@@ -14,6 +14,10 @@ import {
 import toast from 'react-hot-toast';
 import './AlertsPage.css';
 
+// ==============================================================================
+// **INTRUSION ALERTS MONITOR**
+// ==============================================================================
+
 export default function AlertsPage() {
   const { user } = useAuth();
   const [alerts, setAlerts] = useState([]);

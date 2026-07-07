@@ -11,6 +11,10 @@ import { HiOutlineArrowPath, HiOutlineArrowDownTray } from 'react-icons/hi2';
 import toast from 'react-hot-toast';
 import './DashboardPage.css';
 
+// ==============================================================================
+// **DASHBOARD VIEW**
+// ==============================================================================
+
 export default function DashboardPage() {
   const { user } = useAuth();
   const [stats, setStats] = useState(null);
